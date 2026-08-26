@@ -3,7 +3,10 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { AuthPayload } from "./types";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+if (!process.env.JWT_SECRET) {
+  throw new Error("Missing JWT_SECRET env var");
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 const COOKIE_NAME = "ar0_token";
 const SALT_ROUNDS = 12;
 

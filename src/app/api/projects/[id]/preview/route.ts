@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/db";
+import { findProjectForPreview } from "@/lib/db/projects";
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-
-    const { data: project } = await supabase
-      .from("projects")
-      .select("id, code, name")
-      .eq("id", id)
-      .single();
+    const project = await findProjectForPreview(id);
 
     if (!project || !project.code) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -24,7 +19,8 @@ export async function GET(
         "Cache-Control": "no-cache",
       },
     });
-  } catch {
+  } catch (err) {
+    console.error("Preview error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

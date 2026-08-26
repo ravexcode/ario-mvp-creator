@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/db";
+import { findUserByEmail, createUser } from "@/lib/db/auth";
 import { hashPassword, signToken, setAuthCookie } from "@/lib/auth";
-import { RegisterRequest } from "@/lib/types";
 
 export async function POST(request: Request) {
   try {
-    const body: RegisterRequest = await request.json();
-    const { name, email, password, confirmPassword } = body;
+    const { name, email, password, confirmPassword } = await request.json();
 
-    // Validate
     if (!name || !email || !password || !confirmPassword) {
       return NextResponse.json(
         { error: "All fields required" },
@@ -30,13 +27,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check existing user
-    const { data: existing } = await supabase
-      .from("users")
-      .select("id")
-      .eq("email", email.toLowerCase())
-      .single();
-
+    const existing = await findUserByEmail(email);
     if (existing) {
       return NextResponse.json(
         { error: "Email already registered" },
@@ -44,34 +35,17 @@ export async function POST(request: Request) {
       );
     }
 
-    // Hash password
     const passwordHash = await hashPassword(password);
+    const user = await createUser(email, name, passwordHash);
 
-    // Insert user
-    const { data: user, error } = await supabase
-      .from("users")
-      .insert({
-        email: email.toLowerCase(),
-        name,
-        password_hash: passwordHash,
-      })
-      .select("id, email, name")
-      .single();
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    // Sign JWT
     const token = signToken({ userId: user.id, email: user.email });
-
-    // Set cookie
     await setAuthCookie(token);
 
     return NextResponse.json({
       user: { id: user.id, email: user.email, name: user.name },
     });
-  } catch {
+  } catch (err) {
+    console.error("Register error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

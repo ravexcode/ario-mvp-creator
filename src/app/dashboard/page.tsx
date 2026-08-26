@@ -124,48 +124,8 @@ export default function DashboardPage() {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b px-4 py-3">
-        <div>
-          <h1 className="text-lg font-semibold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
-            Welcome, {user.name}
-          </p>
-        </div>
-        <Button variant="ghost" size="sm" onClick={logout}>
-          Sign out
-        </Button>
-      </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Projects sidebar */}
-        <div className="w-64 border-r bg-muted/30 p-4">
-          <h2 className="mb-3 text-sm font-medium text-muted-foreground">
-            Your Projects ({projects.length})
-          </h2>
-          <div className="space-y-2">
-            {projects.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setActiveProject(p)}
-                className={`w-full rounded-lg p-2 text-left text-sm transition-colors ${
-                  activeProject?.id === p.id
-                    ? "bg-background shadow-sm"
-                    : "hover:bg-background/50"
-                }`}>
-                <p className="truncate font-medium">{p.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {new Date(p.created_at).toLocaleDateString()}
-                </p>
-              </button>
-            ))}
-            {projects.length === 0 && (
-              <p className="text-xs text-muted-foreground">
-                No projects yet. Create one below.
-              </p>
-            )}
-          </div>
-        </div>
 
         {/* Main area */}
         <div className="flex flex-1 flex-col">

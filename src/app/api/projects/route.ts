@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/db";
-import { CreateProjectRequest } from "@/lib/types";
+import { findProjectsByUser, createProject } from "@/lib/db/projects";
 
 export async function GET(request: Request) {
   try {
@@ -9,18 +8,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data: projects, error } = await supabase
-      .from("projects")
-      .select("id, name, config, created_at, updated_at")
-      .eq("user_id", userId)
-      .order("updated_at", { ascending: false });
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
+    const projects = await findProjectsByUser(userId);
     return NextResponse.json({ projects });
-  } catch {
+  } catch (err) {
+    console.error("Projects GET error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -35,9 +26,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body: CreateProjectRequest = await request.json();
-    const { name, config } = body;
-
+    const { name, config } = await request.json();
     if (!name) {
       return NextResponse.json(
         { error: "Project name required" },
@@ -45,22 +34,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: project, error } = await supabase
-      .from("projects")
-      .insert({
-        user_id: userId,
-        name,
-        config: config || {},
-      })
-      .select("id, name, config, created_at, updated_at")
-      .single();
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
+    const project = await createProject(userId, name, config);
     return NextResponse.json({ project }, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error("Projects POST error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/db";
+import { findProjectById, deleteProject } from "@/lib/db/projects";
 
 export async function GET(
   request: Request,
@@ -12,20 +12,15 @@ export async function GET(
     }
 
     const { id } = await params;
+    const project = await findProjectById(id, userId);
 
-    const { data: project, error } = await supabase
-      .from("projects")
-      .select("*")
-      .eq("id", id)
-      .eq("user_id", userId)
-      .single();
-
-    if (error || !project) {
+    if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
     return NextResponse.json({ project });
-  } catch {
+  } catch (err) {
+    console.error("Project GET error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -44,19 +39,11 @@ export async function DELETE(
     }
 
     const { id } = await params;
-
-    const { error } = await supabase
-      .from("projects")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", userId);
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    await deleteProject(id, userId);
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (err) {
+    console.error("Project DELETE error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

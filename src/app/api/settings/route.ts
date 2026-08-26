@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/db";
+import { getUserSettings, updateUserSettings } from "@/lib/db/settings";
 import { UserSettings } from "@/lib/types";
 
 export async function GET(request: Request) {
@@ -9,18 +9,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data: user } = await supabase
-      .from("users")
-      .select("settings")
-      .eq("id", userId)
-      .single();
-
-    if (!user) {
+    const settings = await getUserSettings(userId);
+    if (!settings) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ settings: user.settings });
-  } catch {
+    return NextResponse.json({ settings });
+  } catch (err) {
+    console.error("Settings GET error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -36,18 +32,11 @@ export async function PUT(request: Request) {
     }
 
     const body: UserSettings = await request.json();
-
-    const { error } = await supabase
-      .from("users")
-      .update({ settings: body })
-      .eq("id", userId);
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    await updateUserSettings(userId, body);
 
     return NextResponse.json({ settings: body });
-  } catch {
+  } catch (err) {
+    console.error("Settings PUT error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

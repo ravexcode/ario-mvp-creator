@@ -1,22 +1,16 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/db";
+import { findProjectById, updateProjectCode } from "@/lib/db/projects";
 import { GenerateRequest } from "@/lib/types";
 
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
 
 interface OllamaResponse {
   model: string;
-  message: {
-    role: string;
-    content: string;
-  };
+  message: { role: string; content: string };
   done: boolean;
 }
 
-async function callOllama(
-  prompt: string,
-  model: string
-): Promise<string> {
+async function callOllama(prompt: string, model: string): Promise<string> {
   const systemPrompt = `You are an expert web developer. Generate ONLY valid HTML/CSS/JS code for landing pages.
 Rules:
 - Output complete, self-contained HTML
@@ -43,27 +37,20 @@ Rules:
     }),
   });
 
-  if (!res.ok) {
-    throw new Error(`Ollama error: ${res.status}`);
-  }
+  if (!res.ok) throw new Error(`Ollama error: ${res.status}`);
 
   const data: OllamaResponse = await res.json();
   return data.message.content;
 }
 
 function extractHtml(response: string): string {
-  // Try to extract HTML from code blocks
   const codeBlockMatch = response.match(/```(?:html)?\s*\n?([\s\S]*?)```/);
-  if (codeBlockMatch) {
-    return codeBlockMatch[1].trim();
-  }
+  if (codeBlockMatch) return codeBlockMatch[1].trim();
 
-  // If response starts with <!DOCTYPE or <html, return as-is
   if (response.includes("<!DOCTYPE") || response.includes("<html")) {
     return response;
   }
 
-  // Wrap in basic HTML structure
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -94,37 +81,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verify project belongs to user
-    const { data: project } = await supabase
-      .from("projects")
-      .select("id")
-      .eq("id", projectId)
-      .eq("user_id", userId)
-      .single();
-
+    const project = await findProjectById(projectId, userId);
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Call Ollama
     const rawResponse = await callOllama(prompt, model);
-
-    // Extract clean HTML
     const code = extractHtml(rawResponse);
 
-    // Save to project
-    const { error } = await supabase
-      .from("projects")
-      .update({ code, updated_at: new Date().toISOString() })
-      .eq("id", projectId);
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    await updateProjectCode(projectId, code);
 
     return NextResponse.json({ code });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Internal server error";
+    console.error("Generate error:", err);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
