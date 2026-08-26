@@ -37,6 +37,7 @@ export async function findProjectById(
     FROM projects
     WHERE id = ${id} AND user_id = ${userId}
   `;
+
   if (!rows[0]) return null;
   return {
     ...rows[0],
@@ -52,6 +53,9 @@ export async function findProjectForPreview(
     FROM projects
     WHERE id = ${id}
   `;
+
+  console.log(rows)
+
   return rows[0] ?? null;
 }
 

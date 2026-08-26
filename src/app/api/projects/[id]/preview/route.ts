@@ -9,6 +9,8 @@ export async function GET(
     const { id } = await params;
     const project = await findProjectForPreview(id);
 
+    console.log(project)
+
     if (!project || !project.code) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }

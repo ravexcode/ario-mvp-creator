@@ -1,21 +1,17 @@
-# Environment Variables
+## App Configuration
+NEXT_PUBLIC_APP_URL=string
+NEXT_PUBLIC_APP_NAME=string
 
-## Overview
-This file contains the environment variables required for the Ar0 project. Copy `.env.example` to `.env` and fill in your values.
+# AI Services
+OLLAMA_BASE_URL=string
+OLLAMA_API_KEY=string
+OPENAI_API_KEY=string
 
-## Variables
-```bash
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_APP_NAME=Ar0
+# Database
+DATABASE_URL=string
 
-OPENROUTER_API_KEY=your_openrouter_api_key
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_API_KEY=http://localhost:11434
+# Middleware settings (Proxy)
+NEXT_PUBLIC_API_KEY=string
+API_KEY=string
 
-DATABASE_URL=your_database_url
-```
-
-## Notes
-- Never commit `.env` files to version control
-- Use `NEXT_PUBLIC_` prefix for client-side accessible variables
-- Keep sensitive keys server-side only
+JWT_SECRET=string

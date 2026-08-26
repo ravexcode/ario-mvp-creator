@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -16,13 +16,13 @@ import {
 import { SendHorizontal, Loader2 } from "lucide-react";
 
 const MODELS = [
-  { group: "Local", items: [{ value: "minimax-m3", label: "minimax-m3" }] },
   {
     group: "Cloud",
     items: [
       { value: "claude-sonnet-4.5", label: "Claude Sonnet 4.5" },
       { value: "gpt-5", label: "GPT-5" },
       { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+      { value: "gpt-3.5-turbo", label: "GPT‑3.5 Turbo" },
     ],
   },
 ];
@@ -43,7 +43,7 @@ interface Project {
 }
 
 export default function DashboardPage() {
-  const { user, isLoading: authLoading, logout } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState("");
@@ -52,14 +52,14 @@ export default function DashboardPage() {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/sign-in");
-    }
+    if (!authLoading && !user) router.push("/sign-in");
   }, [authLoading, user, router]);
 
   useEffect(() => {
     if (user) {
-      fetch("/api/projects")
+      fetch("/api/projects", {
+        headers: { "x-user-id": user?.id ?? "" },
+      })
         .then((res) => res.json())
         .then((data) => setProjects(data.projects))
         .catch(() => {});
@@ -71,73 +71,53 @@ export default function DashboardPage() {
     if (!prompt.trim() || !model) return;
 
     setIsGenerating(true);
-
     try {
-      // Create project first
       const createRes = await fetch("/api/projects", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": user?.id ?? "",
+        },
         body: JSON.stringify({
           name: prompt.slice(0, 50) + (prompt.length > 50 ? "..." : ""),
           config: { title: prompt.slice(0, 50) },
         }),
       });
-
       if (!createRes.ok) throw new Error("Failed to create project");
       const { project } = await createRes.json();
 
-      // Generate code
       const genRes = await fetch("/api/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          projectId: project.id,
-          prompt,
-          model,
-        }),
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": user?.id ?? "",
+        },
+        body: JSON.stringify({ projectId: project.id, prompt, model }),
       });
-
       if (!genRes.ok) throw new Error("Failed to generate");
       const { code } = await genRes.json();
 
-      // Update local state
       const updatedProject = { ...project, code };
       setActiveProject(updatedProject);
       setProjects((prev) => [updatedProject, ...prev]);
       setPrompt("");
-    } catch {
-      // Handle error silently
     } finally {
       setIsGenerating(false);
     }
   };
 
-  if (authLoading) {
-    return (
-      <div className="flex min-h-dvh items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
+  if (authLoading) return <Loader2 className="size-6 animate-spin" />;
   if (!user) return null;
 
   return (
     <div className="flex h-full flex-col">
-
       <div className="flex flex-1 overflow-hidden">
-
-        {/* Main area */}
         <div className="flex flex-1 flex-col">
           {activeProject ? (
-            /* Preview area */
             <div className="flex-1 overflow-auto p-6">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold">{activeProject.name}</h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setActiveProject(null)}>
+                <Button variant="outline" size="sm" onClick={() => setActiveProject(null)}>
                   Back to generator
                 </Button>
               </div>
@@ -154,7 +134,6 @@ export default function DashboardPage() {
               )}
             </div>
           ) : (
-            /* Generator */
             <div className="flex flex-1 flex-col items-center justify-center p-6">
               <div className="w-full max-w-2xl space-y-6">
                 <div className="text-center">
@@ -165,7 +144,6 @@ export default function DashboardPage() {
                     Describe your landing page and pick a model
                   </p>
                 </div>
-
                 <form onSubmit={handleGenerate} className="space-y-4">
                   <div className="rounded-2xl border bg-card shadow-sm transition-all focus-within:ring-2 focus-within:ring-ring/30">
                     <textarea
@@ -175,11 +153,8 @@ export default function DashboardPage() {
                       rows={3}
                       className="w-full resize-none rounded-t-2xl bg-transparent px-4 pt-3 pb-2 text-sm outline-none placeholder:text-muted-foreground/70"
                     />
-
                     <div className="flex items-center justify-between border-t px-3 py-2">
-                      <Select
-                        value={model}
-                        onValueChange={(v) => setModel(v ?? "")}>
+                      <Select value={model} onValueChange={(v) => setModel(v ?? "")}>
                         <SelectTrigger className="h-8 w-auto gap-1.5 border-transparent bg-transparent px-2 text-xs hover:bg-muted">
                           <SelectValue placeholder="Choose model" />
                         </SelectTrigger>
@@ -196,29 +171,15 @@ export default function DashboardPage() {
                           ))}
                         </SelectContent>
                       </Select>
-
-                      <Button
-                        type="submit"
-                        size="icon-sm"
-                        disabled={!prompt.trim() || !model || isGenerating}
-                        className="rounded-full">
-                        {isGenerating ? (
-                          <Loader2 className="size-3.5 animate-spin" />
-                        ) : (
-                          <SendHorizontal className="size-3.5" />
-                        )}
+                      <Button type="submit" size="icon-sm" disabled={!prompt.trim() || !model || isGenerating} className="rounded-full">
+                        {isGenerating ? <Loader2 className="size-3.5 animate-spin" /> : <SendHorizontal className="size-3.5" />}
                       </Button>
                     </div>
                   </div>
                 </form>
-
                 <div className="flex flex-wrap justify-center gap-2">
                   {SUGGESTIONS.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setPrompt(s)}
-                      className="rounded-full border bg-card px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+                    <button key={s} type="button" onClick={() => setPrompt(s)} className="rounded-full border bg-card px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
                       {s}
                     </button>
                   ))}

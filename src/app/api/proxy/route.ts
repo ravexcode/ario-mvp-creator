@@ -1,16 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-/**
- * POST /api/proxy
- *
- * Proxies requests to an upstream service, injecting `process.env.API_KEY`
- * as a Bearer token. The client never sees or sends the key.
- *
- * Body: { "url": "<upstream endpoint>", "method"?: "GET"|"POST", "body"?: unknown }
- *
- * Rate limiting, logging, and retry logic can be added here.
- */
-
 const UPSTREAM_TIMEOUT_MS = 30_000;
 
 export async function POST(req: NextRequest) {
