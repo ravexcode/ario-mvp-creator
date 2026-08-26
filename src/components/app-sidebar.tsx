@@ -91,7 +91,7 @@ export function AppSidebar() {
             <div className="flex flex-col items-start text-left">
               <span className="font-medium">Ravex</span>
               <span className="text-xs text-muted-foreground">
-                ravex@ario.dev
+                ravex@ar0.dev
               </span>
             </div>
           </DropdownMenuTrigger>

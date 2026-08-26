@@ -186,7 +186,7 @@ export function ChatThread() {
           </div>
 
           <p className="mt-2 text-center text-[10px] text-muted-foreground">
-            Ario can make mistakes. Review generated pages before publishing.
+            Ar0 can make mistakes. Review generated pages before publishing.
           </p>
         </div>
       </div>

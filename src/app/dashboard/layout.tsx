@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
-  title: "Dashboard — Ario",
+  title: "Dashboard — Ar0",
   description: "Build and manage your landing pages",
 };
 

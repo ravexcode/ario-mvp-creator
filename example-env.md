@@ -1,12 +1,12 @@
 # Environment Variables
 
 ## Overview
-This file contains the environment variables required for the Ario project. Copy `.env.example` to `.env` and fill in your values.
+This file contains the environment variables required for the Ar0 project. Copy `.env.example` to `.env` and fill in your values.
 
 ## Variables
 ```bash
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_APP_NAME=Ario
+NEXT_PUBLIC_APP_NAME=Ar0
 
 OPENROUTER_API_KEY=your_openrouter_api_key
 OLLAMA_BASE_URL=http://localhost:11434

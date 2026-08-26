@@ -1,7 +1,7 @@
-# Ario — Project Context
+# Ar0 — Project Context
 
 ## Overview
-Ario is a Next.js 16 web application using App Router, React 19, Tailwind CSS 4, and TypeScript.
+Ar0 is a Next.js 16 web application using App Router, React 19, Tailwind CSS 4, and TypeScript.
 
 ## Stack
 - **Framework:** Next.js 16 (App Router)

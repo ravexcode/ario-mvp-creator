@@ -1,4 +1,4 @@
-const AUTH_COOKIE = "ario_token";
+const AUTH_COOKIE = "ar0_token";
 const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 export function setAuthCookie(token: string) {

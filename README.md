@@ -1,4 +1,4 @@
-# Ario
+# Ar0
 
 A modern web application built with Next.js.
 
@@ -22,7 +22,7 @@ A modern web application built with Next.js.
 
 ```bash
 git clone <repo-url>
-cd ario
+cd ar0
 pnpm install
 ```
 
@@ -50,7 +50,7 @@ pnpm lint
 ## Project Structure
 
 ```
-ario/
+ar0/
 ├── src/
 │   └── app/
 │       ├── layout.tsx    # Root layout

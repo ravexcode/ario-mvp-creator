@@ -38,7 +38,7 @@ export default function Home() {
               </h1>
 
               <p className="mt-4 sm:mt-5 max-w-xl text-base sm:text-lg font-medium tracking-wide text-white/85 animate-blurred-fade-in">
-                Describe your product, pick a model, and watch Ario turn a
+                Describe your product, pick a model, and watch Ar0 turn a
                 prompt into a polished, ready-to-publish page.
               </p>
             </div>

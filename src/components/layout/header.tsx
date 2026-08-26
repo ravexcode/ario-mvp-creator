@@ -27,7 +27,7 @@ export default function Header() {
         <Image src="/logo.svg" alt="App logo" width={30} height={30} />
 
         <p className="text-2xl font-bold tracking-wide text-purple-500">
-          Ario
+          Ar0
         </p>
       </div>
 

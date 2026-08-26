@@ -15,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ario — Landing Page Builder",
+  title: "Ar0 — Landing Page Builder",
   description: "Build beautiful landing pages with AI",
   icons: {
     icon: [

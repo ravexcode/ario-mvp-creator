@@ -75,7 +75,7 @@ export default function SignUpForm() {
           <div className="flex justify-center">
             <Image
               src="/logo.svg"
-              alt="Ario"
+              alt="Ar0"
               width={120}
               height={40}
               className="h-10 w-auto"

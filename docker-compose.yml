@@ -1,5 +1,5 @@
 services:
-  ario:
+  ar0:
     build: .
     ports:
       - "3000:3000"
