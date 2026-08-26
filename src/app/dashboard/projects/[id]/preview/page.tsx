@@ -1,34 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useAuth } from "@/hooks/use-auth";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { User } from "@/types/user";
 
 export default function ProjectPreviewPage() {
-  const { user } = useAuth();
-  const params = useSearchParams();
-  const id = params.get("id");
+  const [user, setUser] = useState<User>();
+  const router = useRouter();
+  const params = useParams();
 
   const [html, setHtml] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!user?.id || !id) {
-      setLoading(false);
-      return;
-    }
+    (async () => {
+      const res = await fetch("/api/auth/me");
 
-    let cancelled = false;
+      if (res.status !== 200) return router.push("/sign-in");
 
-    const fetchPreview = async () => {
+      const data = await res.json();
+      setUser(data);
       setLoading(true);
       setError("");
 
       try {
-        const res = await fetch(`/api/projects/${id}/preview`, {
+        const res = await fetch(`/api/projects/${params.id}/preview`, {
           headers: {
-            "x-user-id": user.id,
+            "x-user-id": data.user.id,
           },
           cache: "no-store",
         });
@@ -39,32 +38,22 @@ export default function ProjectPreviewPage() {
 
         const text = await res.text();
 
-        if (!cancelled) {
-          setHtml(text);
-        }
+        setHtml(text);
       } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Unable to load project preview."
-          );
-        }
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Unable to load project preview."
+        );
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
-    };
 
-    fetchPreview();
+      return;
+    })();
+  }, []);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [user?.id, id]);
-
-  if (!id) {
+  if (!params.id) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-neutral-950 text-neutral-400">
         <p>Project not found.</p>
@@ -73,7 +62,13 @@ export default function ProjectPreviewPage() {
   }
 
   return (
-    <main className="min-h-screen bg-neutral-950">
+    <main className="min-h-screen dark:bg-neutral-950">
+      <button
+        onClick={() => { router.back(); }}
+        className="text-sm p-1 px-4 border border-neutral-300 hover:border-neutral-500 dark:border-neutral-800 dark:hover:border-neutral-600 cursor-pointer duration-300 rounded-sm mb-10">
+        Back to projects
+      </button>
+
       {loading && (
         <div className="flex min-h-screen items-center justify-center text-sm text-neutral-400">
           Loading preview...

@@ -19,9 +19,7 @@ const MODELS = [
   {
     group: "Cloud",
     items: [
-      { value: "claude-sonnet-4.5", label: "Claude Sonnet 4.5" },
-      { value: "gpt-5", label: "GPT-5" },
-      { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+      { value: "gpt-4o-mini", label: "GPT-4o Mini" },
       { value: "gpt-3.5-turbo", label: "GPT‑3.5 Turbo" },
     ],
   },
@@ -124,7 +122,11 @@ export default function DashboardPage() {
               {activeProject.code ? (
                 <div className="rounded-xl border bg-background p-4">
                   <pre className="overflow-x-auto font-mono text-xs">
-                    <code>{activeProject.code}</code>
+                    <iframe
+                      srcDoc={activeProject.code}
+                      className="w-full h-full border-0 min-h-dvh"
+                      sandbox="allow-scripts"
+                    />
                   </pre>
                 </div>
               ) : (

@@ -22,8 +22,8 @@ export const metadata: Metadata = {
       { url: "/favicon.ico", sizes: "48x48" },
       { url: "/favicon.svg", type: "image/svg+xml" },
     ],
-    apple: "/favicon.svg",
-    other: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: "/app_icon.svg",
+    other: [{ url: "/app_icon.svg", type: "image/svg+xml" }],
   },
 };
 
@@ -36,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider>
-          <SmoothScroll>{children}</SmoothScroll>
+          {children}
         </ThemeProvider>
       </body>
     </html>
