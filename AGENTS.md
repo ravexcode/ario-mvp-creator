@@ -63,3 +63,8 @@ AI agent configs in `opencode/agents/`:
 - `deploy.md` — Vercel deployment
 - `testing.md` — Test setup
 - `refactor.md` — Code cleanup
+
+## IMPORTANT
+**NEVER READ / EDIT .env**
+**WE ARE USING LATEST REACT AND NEXTJS Versions**
+**NO USE middleware.ts USE proxy.ts**
